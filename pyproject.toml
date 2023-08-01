@@ -1,0 +1,13 @@
+[tool.pytest.ini_options]
+pythonpath = [
+    ".", "src",
+]
+asyncio_mode = "auto"
+
+env = [
+    "APP_TITLE=FileGarbageTest",
+    "DATABASE_DSN=postgresql+asyncpg://postgres:postgres@localhost:6000/postgres",
+    "test_client_username=user",
+    "test_client_password=password",
+    "FILES_DIR=test_files"
+]
