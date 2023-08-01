@@ -9,7 +9,7 @@ from starlette import status
 from typing_extensions import Annotated
 
 from auth.config import SECRET_KEY, ALGORITHM
-from auth.dto import TokenData, UserDTO, UserResponseDTO
+from auth.dto import TokenData, UserRequestDTO, UserResponseDTO
 from auth.repository import pwd_context, user_crud
 from db.db import get_session
 
@@ -67,6 +67,6 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
 
 
 async def get_current_active_user(
-        current_user: Annotated[UserDTO, Depends(get_current_user)]
+        current_user: Annotated[UserRequestDTO, Depends(get_current_user)]
 ):
     return current_user

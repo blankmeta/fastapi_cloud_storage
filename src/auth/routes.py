@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from auth.config import ACCESS_TOKEN_EXPIRE_MINUTES
-from auth.dto import UserDTO, Token, UserResponseDTO
+from auth.dto import UserRequestDTO, Token, UserResponseDTO
 from auth.repository import user_crud
 from auth.services import (authenticate_user, create_access_token,
                            get_current_active_user)
@@ -19,7 +19,7 @@ user_router = APIRouter()
 @user_router.post("/token", response_model=Token)
 async def login_for_access_token(
         # form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-        user: UserDTO,
+        user: UserRequestDTO,
         db: AsyncSession = Depends(get_session)
 ):
     user = await authenticate_user(db, user.username,
@@ -40,14 +40,14 @@ async def login_for_access_token(
 @user_router.get('/users/me', response_model=UserResponseDTO)
 async def read_users_me(
         current_user: Annotated[
-            UserDTO, Depends(get_current_active_user)],
+            UserRequestDTO, Depends(get_current_active_user)],
 ):
     return current_user
 
 
 @user_router.post('/users/create', status_code=status.HTTP_201_CREATED)
 async def create_user(
-        user_obj: UserDTO,
+        user_obj: UserRequestDTO,
         db: AsyncSession = Depends(get_session)
 ) -> UserResponseDTO:
     try:

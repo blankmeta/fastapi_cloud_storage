@@ -12,7 +12,7 @@ class TokenData(BaseModel):
     username: Union[str, None] = None
 
 
-class UserDTO(BaseModel):
+class UserRequestDTO(BaseModel):
     username: str
     password: str
 
@@ -25,5 +25,5 @@ class UserResponseDTO(BaseModel):
         orm_mode = True
 
 
-class UserInDB(UserDTO):
+class UserInDB(UserRequestDTO):
     hashed_password: str

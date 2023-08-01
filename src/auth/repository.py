@@ -4,14 +4,14 @@ from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth.dto import UserDTO
+from auth.dto import UserRequestDTO
 from auth.models import User
 from services.base import RepositoryDB, CreateSchemaType, ModelType
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-class RepositoryUser(RepositoryDB[User, UserDTO, UserDTO]):
+class RepositoryUser(RepositoryDB[User, UserRequestDTO, UserRequestDTO]):
     @staticmethod
     def get_password_hash(password: str):
         return pwd_context.hash(password)

@@ -1,6 +1,4 @@
-aiofiles==23.1.0
 alembic==1.11.1
-annotated-types==0.5.0
 anyio==3.6.2
 asyncpg==0.27.0
 attrs==23.1.0
@@ -33,9 +31,6 @@ pluggy==1.2.0
 pyasn1==0.5.0
 pycparser==2.21
 pydantic==1.10.11
-pydantic-extra-types==2.0.0
-pydantic-settings==2.0.2
-pydantic_core==2.3.0
 pytest==7.4.0
 pytest-asyncio==0.21.1
 pytest-env==0.8.2
@@ -57,3 +52,4 @@ uvicorn==0.22.0
 uvloop==0.17.0
 watchfiles==0.19.0
 websockets==11.0.3
+aiofiles==23.1.0
