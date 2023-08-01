@@ -2,15 +2,16 @@ import time
 from pathlib import Path
 from typing import Any, Annotated
 
-from fastapi import APIRouter, Depends, Form, UploadFile
+from fastapi import APIRouter, Depends, Form, UploadFile, HTTPException
 from fastapi.responses import FileResponse
 from services.file import file_crud
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 
-from auth.dto import UserRequestDTO
+from auth.dto import UserRequestDTO, UserDTO
 from auth.services import get_current_active_user
+from core.config import FILES_FOLDER
 from db.db import get_session
 from dto.file_dto import FileDBDTO
 
@@ -41,7 +42,8 @@ async def ping_db(
 async def upload_file(
         file: UploadFile,
         path: Annotated[str, Form()],
-        current_user: Annotated[UserRequestDTO, Depends(get_current_active_user)],
+        current_user: Annotated[
+            UserRequestDTO, Depends(get_current_active_user)],
         db: AsyncSession = Depends(get_session)
 ) -> FileDBDTO | Any:
     return await file_crud.create_file(db=db,
@@ -52,7 +54,8 @@ async def upload_file(
 
 @router.get('/files')
 async def list_files(
-        current_user: Annotated[UserRequestDTO, Depends(get_current_active_user)],
+        current_user: Annotated[
+            UserRequestDTO, Depends(get_current_active_user)],
         db: AsyncSession = Depends(get_session)
 ) -> list[FileDBDTO]:
     return await file_crud.get_multi(db=db, user=current_user)
@@ -63,14 +66,22 @@ async def files_download(
         *,
         path: int | str,
         db: AsyncSession = Depends(get_session),
-        current_user: Annotated[UserRequestDTO, Depends(get_current_active_user)],
+        current_user: Annotated[UserDTO, Depends(get_current_active_user)],
 ) -> Any:
     if isinstance(path, int):
         file_obj = await file_crud.get_by_fields(db=db,
                                                  user_id=current_user.id,
                                                  id=path)
-        file_folder = Path(current_user.id, file_obj.path, file_obj.name)
-        return FileResponse(path=file_folder,
-                            media_type="application/octet-stream")
-        # path = f'{user.id}/{obj.path}/{obj.name}'
-    # return FileResponse(path=path, media_type="application/octet-stream")
+    else:
+        file_path = '/'.join(path.split('/')[:-1])
+        file_name = path.split('/')[-1]
+        file_obj = await file_crud.get_by_fields(db=db,
+                                                 user_id=current_user.id,
+                                                 path=file_path,
+                                                 name=file_name)
+    if not file_obj:
+        raise HTTPException(status_code=404, detail='Not found')
+    file_folder = Path(FILES_FOLDER, str(current_user.id), file_obj.path,
+                       file_obj.name)
+    return FileResponse(path=file_folder,
+                        media_type="application/octet-stream")

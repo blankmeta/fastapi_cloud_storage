@@ -17,6 +17,12 @@ class UserRequestDTO(BaseModel):
     password: str
 
 
+class UserDTO(BaseModel):
+    id: int
+    username: str
+    password: str
+
+
 class UserResponseDTO(BaseModel):
     id: int
     username: str
