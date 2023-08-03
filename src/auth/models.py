@@ -13,7 +13,11 @@ class User(Base):
     create_date = Column(
         DateTime(timezone=True), server_default=func.now()
     )
-    files = relationship('File')
+    files = relationship(
+        'File',
+        cascade="all, delete",
+        passive_deletes=True
+    )
 
     def __repr__(self):
         return f'{self.username}'

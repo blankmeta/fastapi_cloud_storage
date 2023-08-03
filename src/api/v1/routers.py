@@ -4,6 +4,8 @@ from typing import Any, Annotated
 
 from fastapi import APIRouter, Depends, Form, UploadFile, HTTPException
 from fastapi.responses import FileResponse
+from starlette import status
+
 from services.file import file_crud
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,10 +20,13 @@ from dto.file_dto import FileDBDTO
 router = APIRouter()
 
 
-@router.get('/ping', responses={
-    200: {'db': 'time'},
-    500: {'db_status': 'down'}
-})
+@router.get('/ping',
+            responses={
+                status.HTTP_200_OK: {'db': 'time'},
+                status.HTTP_500_INTERNAL_SERVER_ERROR: {'db_status': 'down'}
+            },
+            summary='Доступность базы данных',
+            description='Точка для пинга базы данных в секундах')
 async def ping_db(
         db: AsyncSession = Depends(get_session)
 ) -> Any:
@@ -38,7 +43,9 @@ async def ping_db(
         })
 
 
-@router.post('/files/upload')
+@router.post('/files/upload',
+             summary='Загрузка файла в хранилище.',
+             description='Точка для загрузки файла любого типа в облако.')
 async def upload_file(
         file: UploadFile,
         path: Annotated[str, Form()],
@@ -52,7 +59,9 @@ async def upload_file(
                                        file=file)
 
 
-@router.get('/files')
+@router.get('/files',
+            summary='Получение всех файлов.',
+            description='Точка для получения списка всех файлов пользователя.')
 async def list_files(
         current_user: Annotated[
             UserRequestDTO, Depends(get_current_active_user)],
@@ -61,13 +70,15 @@ async def list_files(
     return await file_crud.get_multi(db=db, user=current_user)
 
 
-@router.get('/files/download')
+@router.get('/files/download',
+            summary='Загрузка файлов.',
+            description='Точка для скачивания файла по его id или пути.')
 async def files_download(
         *,
         path: int | str,
         db: AsyncSession = Depends(get_session),
         current_user: Annotated[UserDTO, Depends(get_current_active_user)],
-) -> Any:
+) -> FileResponse:
     if isinstance(path, int):
         file_obj = await file_crud.get_by_fields(db=db,
                                                  user_id=current_user.id,

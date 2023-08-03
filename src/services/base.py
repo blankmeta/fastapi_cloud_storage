@@ -1,3 +1,4 @@
+from abc import ABC
 from typing import Any, Generic, Optional, Type, TypeVar, Sequence
 
 from fastapi.encoders import jsonable_encoder
@@ -13,7 +14,7 @@ CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
-class Repository:
+class Repository(ABC):
 
     def get(self, *args, **kwargs):
         raise NotImplementedError
